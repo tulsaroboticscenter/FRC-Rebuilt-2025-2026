@@ -15,22 +15,43 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
-  private final SparkMax m_motor = new SparkMax(IntakeConstants.kMotorCanId, MotorType.kBrushless);
+  private final SparkMax m_intakeMotor = new SparkMax(IntakeConstants.kIntakeMotorCanId, MotorType.kBrushless);
+  private final SparkMax m_indexerMotor = new SparkMax(IntakeConstants.kIndexerMotorCanId, MotorType.kBrushless);
+
+  private boolean m_indexerInverted = false;
 
   public IntakeSubsystem() {
-    SparkMaxConfig config = new SparkMaxConfig();
-    config
-        .inverted(IntakeConstants.kMotorInverted)
+    SparkMaxConfig intakeConfig = new SparkMaxConfig();
+    intakeConfig
+        .inverted(IntakeConstants.kIntakeMotorInverted)
         .smartCurrentLimit(IntakeConstants.kCurrentLimitAmps)
         .idleMode(IdleMode.kCoast);
-    m_motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    m_intakeMotor.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
+    SparkMaxConfig indexerConfig = new SparkMaxConfig();
+    indexerConfig
+        .inverted(IntakeConstants.kIndexerMotorInverted)
+        .smartCurrentLimit(IntakeConstants.kCurrentLimitAmps)
+        .idleMode(IdleMode.kCoast);
+    m_indexerMotor.configure(indexerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   public void run(double speed) {
-    m_motor.set(MathUtil.clamp(speed, -1.0, 1.0));
+    double clampedSpeed = MathUtil.clamp(speed, -1.0, 1.0);
+    m_intakeMotor.set(clampedSpeed);
+    m_indexerMotor.set(m_indexerInverted ? -clampedSpeed : clampedSpeed);
   }
 
   public void stop() {
-    m_motor.stopMotor();
+    m_intakeMotor.stopMotor();
+    m_indexerMotor.stopMotor();
+  }
+
+  public void toggleIndexerDirection() {
+    m_indexerInverted = !m_indexerInverted;
+  }
+
+  public boolean isIndexerInverted() {
+    return m_indexerInverted;
   }
 }
