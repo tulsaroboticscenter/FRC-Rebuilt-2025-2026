@@ -78,9 +78,16 @@ public class RobotContainer {
         Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
         drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
-        // Right trigger runs intake and indexer
+        // Right trigger runs intake and indexer forward
         driverXbox.rightTrigger(0.1).whileTrue(
             Commands.run(() -> intake.run(IntakeConstants.kMaxOutput), intake)
+        ).onFalse(
+            Commands.runOnce(() -> intake.stop(), intake)
+        );
+
+        // Left trigger runs intake and indexer in reverse
+        driverXbox.leftTrigger(0.1).whileTrue(
+            Commands.run(() -> intake.run(-IntakeConstants.kMaxOutput), intake)
         ).onFalse(
             Commands.runOnce(() -> intake.stop(), intake)
         );
@@ -100,6 +107,11 @@ public class RobotContainer {
             ).andThen(
                 Commands.runOnce(() -> driverXbox.getHID().setRumble(RumbleType.kBothRumble, 0.0))
             )
+        );
+
+        // Start button resets gyro so current heading becomes forward.
+        driverXbox.start().onTrue(
+            Commands.runOnce(drivebase::zeroGyroWithAlliance, drivebase)
         );
     }
 
