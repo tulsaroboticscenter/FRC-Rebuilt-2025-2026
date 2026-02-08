@@ -11,14 +11,18 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
   private final SparkMax m_intakeMotor = new SparkMax(IntakeConstants.kIntakeMotorCanId, MotorType.kBrushless);
   private final SparkMax m_indexerMotor = new SparkMax(IntakeConstants.kIndexerMotorCanId, MotorType.kBrushless);
+  private final SlewRateLimiter m_outputLimiter =
+      new SlewRateLimiter(IntakeConstants.kOutputRampRatePerSecond);
 
   private boolean m_indexerInverted = false;
+  private double m_targetOutput = 0.0;
 
   public IntakeSubsystem() {
     SparkMaxConfig intakeConfig = new SparkMaxConfig();
@@ -37,14 +41,11 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void run(double speed) {
-    double clampedSpeed = MathUtil.clamp(speed, -1.0, 1.0);
-    m_intakeMotor.set(clampedSpeed);
-    m_indexerMotor.set(m_indexerInverted ? -clampedSpeed : clampedSpeed);
+    m_targetOutput = MathUtil.clamp(speed, -1.0, 1.0);
   }
 
   public void stop() {
-    m_intakeMotor.stopMotor();
-    m_indexerMotor.stopMotor();
+    m_targetOutput = 0.0;
   }
 
   public void toggleIndexerDirection() {
@@ -53,5 +54,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public boolean isIndexerInverted() {
     return m_indexerInverted;
+  }
+
+  @Override
+  public void periodic() {
+    double rampedOutput = m_outputLimiter.calculate(m_targetOutput);
+    m_intakeMotor.set(rampedOutput);
+    m_indexerMotor.set(m_indexerInverted ? -rampedOutput : rampedOutput);
   }
 }

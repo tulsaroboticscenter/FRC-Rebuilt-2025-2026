@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +39,7 @@ public class SwerveSubsystem extends SubsystemBase
      * Swerve drive object.
      */
     private final SwerveDrive swerveDrive;
+    private boolean wheelLockEnabled = false;
 
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
@@ -251,7 +253,13 @@ public class SwerveSubsystem extends SubsystemBase
     public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity)
     {
         return run(() -> {
-            swerveDrive.driveFieldOriented(velocity.get());
+            if (wheelLockEnabled)
+            {
+                swerveDrive.lockPose();
+            } else
+            {
+                swerveDrive.driveFieldOriented(velocity.get());
+            }
         });
     }
 
@@ -462,6 +470,52 @@ public class SwerveSubsystem extends SubsystemBase
     public void lock()
     {
         swerveDrive.lockPose();
+    }
+
+    /**
+     * Set whether wheel lock is enabled. Enabled = X-lock, disabled = O-pose.
+     *
+     * @param enabled True to enable wheel lock.
+     */
+    public void setWheelLockEnabled(boolean enabled)
+    {
+        wheelLockEnabled = enabled;
+        if (wheelLockEnabled)
+        {
+            lock();
+        } else
+        {
+            setTurnInPlaceOPose();
+        }
+    }
+
+    /**
+     * Toggle between X-lock and O-pose.
+     */
+    public void toggleWheelLock()
+    {
+        setWheelLockEnabled(!wheelLockEnabled);
+    }
+
+    /**
+     * @return true when X-lock is active.
+     */
+    public boolean isWheelLockEnabled()
+    {
+        return wheelLockEnabled;
+    }
+
+    /**
+     * Set modules to an O-style turn-in-place orientation.
+     */
+    public void setTurnInPlaceOPose()
+    {
+        SwerveModuleState[] turnStates = swerveDrive.kinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, 0.0, 1.0));
+        var modules = swerveDrive.getModules();
+        for (int i = 0; i < modules.length; i++)
+        {
+            modules[i].setAngle(turnStates[i].angle.getDegrees());
+        }
     }
 
     /**

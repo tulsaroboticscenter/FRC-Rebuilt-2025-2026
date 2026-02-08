@@ -56,5 +56,8 @@ public final class Constants
         public static final boolean kIndexerMotorInverted = false;
         public static final int kCurrentLimitAmps = 40;
         public static final double kMaxOutput = 0.8;
+        // Max change in commanded output per second (e.g., 3.0 -> ~0.27s from 0 to 0.8).
+        public static final double kOutputRampRatePerSecond = 3.0;
+        public static final double kIndexerInvertedRumbleStrength = 0.2;
     }
 }

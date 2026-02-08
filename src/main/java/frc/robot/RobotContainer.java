@@ -92,26 +92,28 @@ public class RobotContainer {
             Commands.runOnce(() -> intake.stop(), intake)
         );
 
-        // Left bumper toggles indexer direction with vibration feedback
+        // Left bumper toggles indexer direction.
         driverXbox.leftBumper().onTrue(
-            Commands.runOnce(() -> {
-                intake.toggleIndexerDirection();
-                // Vibrate left side for forward (not inverted), right side for inverted
-                if (intake.isIndexerInverted()) {
-                    driverXbox.getHID().setRumble(RumbleType.kRightRumble, 1.0);
-                } else {
-                    driverXbox.getHID().setRumble(RumbleType.kLeftRumble, 1.0);
-                }
-            }).andThen(
-                Commands.waitSeconds(0.2)
-            ).andThen(
-                Commands.runOnce(() -> driverXbox.getHID().setRumble(RumbleType.kBothRumble, 0.0))
+            Commands.runOnce(intake::toggleIndexerDirection)
+        );
+
+        // While indexer is inverted, keep a subtle continuous rumble.
+        new Trigger(intake::isIndexerInverted).whileTrue(
+            Commands.startEnd(
+                () -> driverXbox.getHID().setRumble(
+                    RumbleType.kRightRumble, IntakeConstants.kIndexerInvertedRumbleStrength),
+                () -> driverXbox.getHID().setRumble(RumbleType.kRightRumble, 0.0)
             )
         );
 
         // Start button resets gyro so current heading becomes forward.
         driverXbox.start().onTrue(
             Commands.runOnce(drivebase::zeroGyroWithAlliance, drivebase)
+        );
+
+        // X button toggles wheel lock: on = X-lock, off = O-pose.
+        driverXbox.x().onTrue(
+            Commands.runOnce(drivebase::toggleWheelLock, drivebase)
         );
     }
 
