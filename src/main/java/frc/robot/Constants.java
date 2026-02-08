@@ -52,7 +52,7 @@ public final class Constants
     public static class IntakeConstants {
         public static final int kIntakeMotorCanId = 4;
         public static final int kIndexerMotorCanId = 26;
-        public static final boolean kIntakeMotorInverted = true;
+        public static final boolean kIntakeMotorInverted = false;
         public static final boolean kIndexerMotorInverted = false;
         public static final int kCurrentLimitAmps = 40;
         public static final double kMaxOutput = 0.8;
