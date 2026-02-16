@@ -50,10 +50,19 @@ public final class Constants
     }
 
     public static class IntakeConstants {
-        public static final int kIntakeMotorCanId = 4;
+
+        // Launcher Motor
+        public static final int kLaunchMotorCanId = 4;
+        public static final boolean kLaunchMotorInverted = true;
+        
+        // Indexer Motor
         public static final int kIndexerMotorCanId = 26;
-        public static final boolean kIntakeMotorInverted = false;
         public static final boolean kIndexerMotorInverted = false;
+
+        // Intake Motor
+        public static final int kIntakeMotorCanId = 25;
+        public static final boolean kIntakeMotorInverted = true;
+
         public static final int kCurrentLimitAmps = 40;
         public static final double kMaxOutput = 0.8;
         // Max change in commanded output per second (e.g., 3.0 -> ~0.27s from 0 to 0.8).

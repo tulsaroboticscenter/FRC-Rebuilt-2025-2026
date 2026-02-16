@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -78,23 +79,18 @@ public class RobotContainer {
         Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
         drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
-        // Right trigger runs intake and indexer forward
+        // Right trigger intakes and shoots depending on flywheel status
+        // If the flywheel is off, it intakes.
+        // If the flywheel is on, it shoots.
         driverXbox.rightTrigger(0.1).whileTrue(
-            Commands.run(() -> intake.run(IntakeConstants.kMaxOutput), intake)
+            Commands.run(() -> intake.runLauncher(MathUtil.clamp(driverXbox.getRightTriggerAxis(), 0, IntakeConstants.kMaxOutput)), intake)
         ).onFalse(
-            Commands.runOnce(() -> intake.stop(), intake)
+            Commands.runOnce(() -> intake.stopLaunch(), intake)
         );
 
-        // Left trigger runs intake and indexer in reverse
-        driverXbox.leftTrigger(0.1).whileTrue(
-            Commands.run(() -> intake.run(-IntakeConstants.kMaxOutput), intake)
-        ).onFalse(
-            Commands.runOnce(() -> intake.stop(), intake)
-        );
-
-        // Left bumper toggles indexer direction.
+        // Left bumper toggles flywheel on and off.
         driverXbox.leftBumper().onTrue(
-            Commands.runOnce(intake::toggleIndexerDirection)
+            Commands.runOnce(intake::toggleFlywheel)
         );
 
         // While indexer is inverted, keep a subtle continuous rumble.
