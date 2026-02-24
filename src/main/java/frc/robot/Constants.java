@@ -19,6 +19,9 @@ import swervelib.math.Matter;
 public final class Constants
 {
 
+    // Set to true before deploying to the test roboRIO — skips all competition subsystems.
+    public static final boolean IS_TEST_ROBOT = true;
+
     public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
     public static final Matter CHASSIS    = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
@@ -47,6 +50,11 @@ public final class Constants
         public static final double LEFT_Y_DEADBAND = 0.1;
         public static final double RIGHT_X_DEADBAND = 0.1;
         public static final double TURN_CONSTANT    = 6;
+    }
+
+    public static class NewMotorConstants {
+        public static final int kCanId = 21;
+        public static final double kSpeed = 0.5;
     }
 
     public static class IntakeConstants {

@@ -7,6 +7,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.TestBenchSubsystem;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -16,16 +19,27 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private final RobotContainer m_robotContainer;
+  // Competition robot
+  private RobotContainer m_robotContainer;
+
+  // Test robot only
+  private TestBenchSubsystem m_testBench;
+  private CommandXboxController m_testController;
 
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   public Robot() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    if (Constants.IS_TEST_ROBOT) {
+      // Only initialize the test bench motor — no swerve, no intake.
+      m_testBench = new TestBenchSubsystem();
+      m_testController = new CommandXboxController(0);
+      m_testController.a().onTrue(Commands.runOnce(m_testBench::toggle, m_testBench));
+    } else {
+      // Full competition robot setup.
+      m_robotContainer = new RobotContainer();
+    }
   }
 
   /**
@@ -54,6 +68,8 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    if (m_robotContainer == null) return;
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -68,6 +84,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    if (m_robotContainer == null) return;
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
