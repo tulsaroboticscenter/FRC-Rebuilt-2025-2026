@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -55,6 +57,10 @@ public class RobotContainer {
      */
     public RobotContainer() {
         // Configure the trigger bindings
+        NamedCommands.registerCommand("Intake On", Commands.runOnce(() -> intake.runLauncher(IntakeConstants.kMaxOutput), intake));
+        NamedCommands.registerCommand("Intake Off", Commands.runOnce(() -> intake.runLauncher(0), intake));
+        NamedCommands.registerCommand("Flywheel Toggle", Commands.runOnce(intake::toggleFlywheel));
+
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
 
@@ -63,6 +69,9 @@ public class RobotContainer {
 
         //Add a simple auto option to have the robot drive forward for 1 second then stop
         autoChooser.addOption("Drive Forward", drivebase.driveForward().withTimeout(1));
+
+        // PathPlanner autonomous routines
+        autoChooser.addOption("Simple Auto", new PathPlannerAuto("Simple Auto"));
 
         //Put the autoChooser on the SmartDashboard
         SmartDashboard.putData("Auto Chooser", autoChooser);

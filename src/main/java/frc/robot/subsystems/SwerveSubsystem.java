@@ -6,6 +6,10 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,6 +36,8 @@ import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
+
+//181.9
 
 public class SwerveSubsystem extends SubsystemBase
 {
@@ -74,6 +80,28 @@ public class SwerveSubsystem extends SubsystemBase
         swerveDrive.setModuleEncoderAutoSynchronize(false,
                 1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
+
+        // Configure PathPlanner AutoBuilder for autonomous path following
+        try
+        {
+            RobotConfig config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+                    this::getPose,
+                    this::resetOdometry,
+                    this::getRobotVelocity,
+                    (speeds, feedforwards) -> drive(speeds),
+                    new PPHolonomicDriveController(
+                            new PIDConstants(5.0, 0.0, 0.0),
+                            new PIDConstants(5.0, 0.0, 0.0)
+                    ),
+                    config,
+                    this::isRedAlliance,
+                    this
+            );
+        } catch (Exception e)
+        {
+            DriverStation.reportError("Failed to load PathPlanner config: " + e.getMessage(), e.getStackTrace());
+        }
     }
 
     /**
