@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
@@ -32,6 +33,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private double m_intakeTargetOutput = 0.0;
 
   private boolean isFlywheelRunning = false;
+  private double m_flywheelSpeed = 0.56;
 
   public IntakeSubsystem() {
 
@@ -84,6 +86,14 @@ public class IntakeSubsystem extends SubsystemBase {
     isFlywheelRunning = !isFlywheelRunning;
   }
 
+  public void incrementFlywheelSpeed() {
+    m_flywheelSpeed = MathUtil.clamp(m_flywheelSpeed + 0.01, 0.0, 1.0);
+  }
+
+  public void decrementFlywheelSpeed() {
+    m_flywheelSpeed = MathUtil.clamp(m_flywheelSpeed - 0.01, 0.0, 1.0);
+  }
+
   public void toggleIndexerDirection() {
     m_indexerInverted = !m_indexerInverted;
   }
@@ -96,8 +106,11 @@ public class IntakeSubsystem extends SubsystemBase {
   public void periodic() {
     double rampedLaunchOutput = m_outputLimiter.calculate(m_launchTargetOutput);
     double rampedIntakeOutput = m_outputLimiter.calculate(m_intakeTargetOutput);
-    m_launchMotor.set(isFlywheelRunning ? 0.65 : 0);
+    m_launchMotor.set(isFlywheelRunning ? m_flywheelSpeed : 0);
     m_indexerMotor.set(isFlywheelRunning ? -rampedIntakeOutput : rampedIntakeOutput);
     m_intakeMotor.set(-MathUtil.clamp(rampedLaunchOutput + rampedIntakeOutput, 0, 1));
+
+    SmartDashboard.putNumber("Flywheel Speed Setpoint", m_flywheelSpeed);
+    SmartDashboard.putBoolean("Flywheel Running", isFlywheelRunning);
   }
 }

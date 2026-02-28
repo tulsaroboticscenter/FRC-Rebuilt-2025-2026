@@ -111,6 +111,14 @@ public class RobotContainer {
         driverXbox.x().onTrue(
             Commands.runOnce(drivebase::toggleWheelLock, drivebase)
         );
+
+        // D-pad up/down adjusts flywheel speed by 0.05 (clamped 0.0–1.0).
+        driverXbox.povUp().onTrue(
+            Commands.runOnce(intake::incrementFlywheelSpeed, intake)
+        );
+        driverXbox.povDown().onTrue(
+            Commands.runOnce(intake::decrementFlywheelSpeed, intake)
+        );
     }
 
     /**
