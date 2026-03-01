@@ -71,6 +71,7 @@ public class RobotContainer {
         autoChooser.addOption("Drive Forward", drivebase.driveForward().withTimeout(1));
 
         // PathPlanner autonomous routines
+        autoChooser.addOption("Right-Side Sweep", new PathPlannerAuto("Blue Sweep"));
         autoChooser.addOption("Simple Auto", new PathPlannerAuto("Simple Auto"));
 
         //Put the autoChooser on the SmartDashboard

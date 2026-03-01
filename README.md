@@ -39,13 +39,11 @@ Driver controller is an Xbox controller on port `0`.
 
 - Left stick (`Y/X`): field-relative translation
 - Right stick (`X`): rotation command (turn)
-- Right trigger (> `0.1`): intake + indexer forward while held
-- Left trigger (> `0.1`): intake + indexer reverse while held
+- Right trigger (> `0.1`): Intake/Fire 
+- Y button: Toggle between Intake and Fire modes
 - Trigger release: intake + indexer stop
 - Intake/indexer speed changes are ramped (`kOutputRampRatePerSecond`) to reduce mechanical shock during direction changes
-- Left bumper: toggle indexer inversion
-- While indexer is inverted: subtle continuous right rumble (`kIndexerInvertedRumbleStrength`)
-- Start button: zero gyro so current heading becomes straight ahead (alliance-aware)
+- Start button (Hamburger Icon): zero gyro so current heading becomes straight ahead (alliance-aware)
 - X button: wheel lock toggle
 - Wheel lock ON: X-lock stance (hard to push)
 - Wheel lock OFF: sets wheels back to an O-style turn pose, then normal driving continues
@@ -54,3 +52,4 @@ Driver controller is an Xbox controller on port `0`.
 Use SmartDashboard chooser:
 - `Do Nothing` (default)
 - `Drive Forward` (1 second)
+- `Test` (Sweeps across neutral zone from right side of alliance zone to the left side)
