@@ -92,7 +92,7 @@ public class SwerveSubsystem extends SubsystemBase
                     (speeds, feedforwards) -> drive(speeds),
                     new PPHolonomicDriveController(
                             new PIDConstants(0.0020645, 0.0, 0.0), // kP values brought from deploy\swerve\modules\pidfproperties.json
-                            new PIDConstants(0.0030645, 0.0, 0.0)
+                            new PIDConstants(0.0020645, 0.0, 0.0)
                     ),
                     config,
                     this::isRedAlliance,

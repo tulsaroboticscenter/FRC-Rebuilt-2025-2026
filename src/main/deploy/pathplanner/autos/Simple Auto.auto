@@ -74,13 +74,19 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Intake On"
+                  "name": "Flywheel Toggle"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Flywheel Toggle"
+                  "name": "Intake On"
                 }
               },
               {
@@ -92,13 +98,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Flywheel Toggle"
+                  "name": "Intake Off"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Intake Off"
+                  "name": "Flywheel Toggle"
                 }
               }
             ]
