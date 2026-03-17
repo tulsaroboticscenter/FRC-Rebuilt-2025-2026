@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
+import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -299,5 +300,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     @Override
     public Optional<Pose2d> samplePoseAt(double timestampSeconds) {
         return super.samplePoseAt(Utils.fpgaToCurrentTime(timestampSeconds));
+    }
+
+    /**
+     * Updates the pose estimator with the latest MegaTag2 estimate from a Limelight.
+     * Call this every loop (e.g. from periodic() or a Commands.run() in RobotContainer).
+     *
+     * @param limelightName The NetworkTables name of the Limelight (e.g. "limelight")
+     */
+    public void updateVisionPose(String limelightName) {
+        // Provide the limelight with the robot's current heading so MegaTag2 works correctly
+        LimelightHelpers.SetRobotOrientation(
+            limelightName,
+            getState().Pose.getRotation().getDegrees(),
+            0, 0, 0, 0, 0
+        );
+
+        LimelightHelpers.PoseEstimate mt2 =
+            LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
+
+        // Reject null or tagless estimates
+        if (mt2 == null || mt2.tagCount == 0) return;
+
+        // Reject if the robot is spinning faster than 720 deg/s — causes bad estimates
+        if (Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720) return;
+
+        addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
     }
 }

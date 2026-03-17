@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
+import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -29,6 +30,16 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+    // Limelight name — change "limelight" to match your camera's name in the UI
+    private static final String kLimelightName = "limelight";
+
+    // Field-centric request that locks heading toward a Limelight target (right bumper)
+    private final SwerveRequest.FieldCentricFacingAngle aimAtTarget =
+        new SwerveRequest.FieldCentricFacingAngle()
+            .withDeadband(MaxSpeed * 0.1)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withHeadingPID(7.0, 0, 0); // Tune kP (7.0 is a starting point)
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -74,6 +85,21 @@ public class RobotContainer {
         // Reset the field-centric heading on left bumper press.
         joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
+        // Right bumper: aim robot toward the Limelight's primary target while still driving
+        joystick.rightBumper().whileTrue(
+            drivetrain.applyRequest(() -> {
+                double tx = LimelightHelpers.getTX(kLimelightName);
+                Rotation2d targetAngle = drivetrain.getState().Pose.getRotation()
+                    .plus(Rotation2d.fromDegrees(-tx));
+                return aimAtTarget
+                    .withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                    .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                    .withTargetDirection(targetAngle);
+            })
+        );
+
+        // Feed Limelight MegaTag2 pose estimates into the drivetrain's pose estimator
+        drivetrain.run(() -> drivetrain.updateVisionPose(kLimelightName));
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
