@@ -2,10 +2,12 @@
 
 ## Project Structure & Module Organization
 - Main robot code lives in `src/main/java/frc/robot/`.
-- `subsystems/` contains hardware-facing subsystems (for example `SwerveSubsystem`, `IntakeSubsystem`).
-- `commands/` contains command logic (Java and Kotlin examples exist).
+- Kotlin sources live in `src/main/kotlin/frc/robot/` when used.
+- `subsystems/` contains hardware-facing subsystems. The drivetrain baseline is `CommandSwerveDrivetrain`, which wraps the CTRE Phoenix 6 generated swerve drivetrain.
+- `commands/` contains command logic.
 - `RobotContainer.java` owns controller bindings and default commands.
-- `Constants.java` is the central location for CAN IDs, limits, and tunables.
+- `generated/TunerConstants.java` holds the CTRE Tuner X generated drivetrain configuration and module constants for the competition bot.
+- This robot starts from a CTRE swerve competition platform using CTR swerve modules with Kraken X60 drive motors.
 - Deploy-time assets (swerve JSON, other robot config files) live in `src/main/deploy/`.
 - Vendor libraries are tracked in `vendordeps/`.
 
@@ -22,6 +24,7 @@
 - Indentation: 4 spaces; avoid tabs.
 - Class names: `PascalCase`; methods/fields: `camelCase`; constants: `UPPER_SNAKE_CASE` or existing `kCamelCase` style used in `Constants`.
 - Keep subsystem APIs small and command-friendly (`run`, `stop`, `toggle...`).
+- Keep CTRE-generated drivetrain code isolated where practical; place team-specific behavior around `CommandSwerveDrivetrain` instead of editing generated constants without reason.
 - Prefer placing operator mappings in `RobotContainer` rather than scattered in subsystem code.
 
 ## Testing Guidelines
@@ -32,7 +35,7 @@
 
 ## Commit & Pull Request Guidelines
 - Use Conventional Commits format for general commit messages: `<type>(<scope>): <description>` (example: `feat(intake): add reverse control on left trigger`).
-- Group related changes per commit; avoid mixing drivetrain, intake, and config edits unless tightly coupled.
+- Group related changes per commit; avoid mixing drivetrain, mechanism, and generated config edits unless tightly coupled.
 - PRs should include what changed and why.
 - PRs should include how it was verified (`./gradlew build`, sim run, on-robot check).
 - PRs should call out any driver-control mapping changes clearly.

@@ -1,11 +1,16 @@
 plugins {
     id "java"
+    id "org.jetbrains.kotlin.jvm" version "1.9.22"
     id "edu.wpi.first.GradleRIO" version "2026.1.1"
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
@@ -56,6 +61,7 @@ dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
     roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)

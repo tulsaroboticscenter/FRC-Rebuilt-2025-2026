@@ -23,6 +23,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.TestSubsystem;
 
 public class RobotContainer {
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -50,10 +51,12 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final TestSubsystem testSubsystem = new TestSubsystem();
 
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
+        testSubsystem.markInitialized();
         configureBindings();
 
         autoChooser = AutoBuilder.buildAutoChooser();
