@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -264,6 +265,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
          * Otherwise, only check and apply the operator perspective if the DS is disabled.
          * This ensures driving behavior doesn't change until an explicit disable event occurs during testing.
          */
+        SmartDashboard.putNumber("Gyro/Yaw", getPigeon2().getYaw().getValueAsDouble());
+        SmartDashboard.putNumber("Gyro/Pitch", getPigeon2().getPitch().getValueAsDouble());
+        SmartDashboard.putNumber("Gyro/Roll", getPigeon2().getRoll().getValueAsDouble());
+        SmartDashboard.putNumber("Gyro/YawRate", getPigeon2().getAngularVelocityZWorld().getValueAsDouble());
+
+        var moduleStates = getState().ModuleStates;
+        if (moduleStates != null) {
+            String[] moduleNames = {"FrontLeft", "FrontRight", "BackLeft", "BackRight"};
+            for (int i = 0; i < moduleStates.length && i < moduleNames.length; i++) {
+                SmartDashboard.putNumber("Swerve/" + moduleNames[i] + "/SpeedMPS", moduleStates[i].speedMetersPerSecond);
+            }
+        }
+
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(

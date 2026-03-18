@@ -82,36 +82,36 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
+//        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+//        joystick.b().whileTrue(drivetrain.applyRequest(() ->
+//            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+//        ));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+//        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+//        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+//        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+//        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // Reset the field-centric heading on left bumper press.
         joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         // Right bumper: aim robot toward the Limelight's primary target while still driving
-        joystick.rightBumper().whileTrue(
-            drivetrain.applyRequest(() -> {
-                double tx = LimelightHelpers.getTX(kLimelightName);
-                Rotation2d targetAngle = drivetrain.getState().Pose.getRotation()
-                    .plus(Rotation2d.fromDegrees(-tx));
-                return aimAtTarget
-                    .withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                    .withTargetDirection(targetAngle);
-            })
-        );
+//        joystick.rightBumper().whileTrue(
+//            drivetrain.applyRequest(() -> {
+//                double tx = LimelightHelpers.getTX(kLimelightName);
+//                Rotation2d targetAngle = drivetrain.getState().Pose.getRotation()
+//                    .plus(Rotation2d.fromDegrees(-tx));
+//                return aimAtTarget
+//                    .withVelocityX(-joystick.getLeftY() * MaxSpeed)
+//                    .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+//                    .withTargetDirection(targetAngle);
+//            })
+//        );
 
         // Feed Limelight MegaTag2 pose estimates into the drivetrain's pose estimator
-        drivetrain.run(() -> drivetrain.updateVisionPose(kLimelightName));
+//        drivetrain.run(() -> drivetrain.updateVisionPose(kLimelightName));
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
