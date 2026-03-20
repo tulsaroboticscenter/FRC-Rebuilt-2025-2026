@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -21,6 +22,13 @@ public class Robot extends TimedRobot {
         .withJoystickReplay();
 
     public Robot() {
+        // Forward Limelight ports through the roboRIO so the web UI and stream are
+        // reachable from the driver station over USB when on the robot network.
+        // 10.94.62.2:5801 -> from the driver station you can view the limelight config
+        for (int port = 5800; port <= 5809; port++) {
+            PortForwarder.add(port, "limelight.local", port);
+        }
+
         m_robotContainer = new RobotContainer();
     }
 
