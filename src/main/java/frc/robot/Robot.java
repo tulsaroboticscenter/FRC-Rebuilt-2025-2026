@@ -65,7 +65,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        SignalLogger.start();
         m_robotContainer.drivetrain.seedFieldCentric();
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
