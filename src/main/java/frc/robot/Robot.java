@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.HootAutoReplay;
+import com.ctre.phoenix6.SignalLogger;
 
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -64,6 +65,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        SignalLogger.start();
         m_robotContainer.drivetrain.seedFieldCentric();
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
