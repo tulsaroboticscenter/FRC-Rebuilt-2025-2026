@@ -10,22 +10,26 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TestSubsystem;
 
 import static edu.wpi.first.units.Units.*;
 
 public class RobotContainer {
-    private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(1.50).in(RadiansPerSecond); // 1.5 of a rotation per second max angular velocity
+    private final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private final double MaxAngularRate = RotationsPerSecond.of(1.50).in(RadiansPerSecond); // 1.5 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private static final String kLimelightName = "limelight";
 
     // Field-centric request that locks heading toward a Limelight target (right bumper)
@@ -33,10 +37,14 @@ public class RobotContainer {
     private double angle = 6.0;
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandXboxController joystick = new CommandXboxController(0);
+    //    private final CommandXboxController joystick = new CommandXboxController(0);
+    private final CommandPS5Controller joystick = new CommandPS5Controller(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final TestSubsystem testSubsystem = new TestSubsystem();
+    private final ShooterSubsystem shooter = new ShooterSubsystem();
+    private final IntakeSubsystem intake = new IntakeSubsystem();
+    private final FeederSubsystem feeder = new FeederSubsystem();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -69,7 +77,7 @@ public class RobotContainer {
                 drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-//        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        joystick.triangle().whileTrue(drivetrain.applyRequest(() -> brake));
 //        joystick.b().whileTrue(drivetrain.applyRequest(() ->
 //            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
 //        ));
@@ -91,21 +99,11 @@ public class RobotContainer {
             SmartDashboard.putNumber("AimAtTarget/kP", aimKp);
         }));
 
-        // Triggers: adjust angle tolerance up/down by 0.5 degrees
-        joystick.rightTrigger(0.5).onTrue(drivetrain.runOnce(() -> {
-            angle += 0.5;
-            SmartDashboard.putNumber("AimAtTarget/AngleTolerance", angle);
-        }));
-        joystick.leftTrigger(0.5).onTrue(drivetrain.runOnce(() -> {
-            angle = Math.max(0, angle - 0.5);
-            SmartDashboard.putNumber("AimAtTarget/AngleTolerance", angle);
-        }));
+        // Reset the field-centric heading on L1 press.
+        joystick.L1().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-        // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-
-        // Right bumper: angle-only Limelight tracking — driver keeps full translational control
-        joystick.rightBumper().whileTrue(
+        // R1: angle-only Limelight tracking — driver keeps full translational control
+        joystick.R1().whileTrue(
                 drivetrain.applyRequest(() -> {
                     double tx = LimelightHelpers.getTX(kLimelightName);
                     boolean hasTarget = LimelightHelpers.getTV(kLimelightName);
@@ -118,6 +116,18 @@ public class RobotContainer {
                             .withRotationalRate(steeringAdjust);
                 })
         );
+
+        // Right trigger: run shooter while held
+        joystick.R2().whileTrue(shooter.runShooterCommand());
+
+        // Cross (X): toggle intake on/off
+        joystick.cross().toggleOnTrue(intake.runIntakeCommand());
+
+        // Circle: reverse intake while held
+        joystick.circle().whileTrue(intake.reverseIntakeCommand());
+
+        // Square: run feeder while held
+        joystick.square().whileTrue(feeder.runFeederCommand());
 
         // Feed Limelight MegaTag2 pose estimates into the drivetrain's pose estimator
 //        drivetrain.run(() -> drivetrain.updateVisionPose(kLimelightName));
