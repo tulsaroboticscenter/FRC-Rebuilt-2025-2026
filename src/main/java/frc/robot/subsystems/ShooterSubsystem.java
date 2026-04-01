@@ -15,8 +15,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final int kLeftMotorId  = 43;
     private static final int kRightMotorId = 44;
 
-    // Target velocity in rotations per second (~3000 RPM)
-    private static final double kTargetVelocityRPS = 52.0;
+    // Target velocity in rotations per second (~3000 RPM) — adjustable via D-pad
+    private double targetVelocityRPS = 52.0;
 
     // PID / feedforward gains (tune with SysId or on-robot testing)
     private static final double kP = 0.1;   // V per RPS of error
@@ -54,10 +54,15 @@ public class ShooterSubsystem extends SubsystemBase {
         rightMotor.getConfigurator().apply(config);
     }
 
+    /** Adjust the target velocity by {@code deltaRPS} rotations per second. */
+    public void adjustTargetRPS(double deltaRPS) {
+        targetVelocityRPS += deltaRPS;
+    }
+
     /** Spin both wheels at the target velocity. */
     public void runShooter() {
-        leftMotor.setControl(velocityRequest.withVelocity(kTargetVelocityRPS));
-        rightMotor.setControl(velocityRequest.withVelocity(kTargetVelocityRPS));
+        leftMotor.setControl(velocityRequest.withVelocity(targetVelocityRPS));
+        rightMotor.setControl(velocityRequest.withVelocity(targetVelocityRPS));
     }
 
     /** Coast both wheels to a stop. */
@@ -70,8 +75,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public boolean atSpeed() {
         double leftVel  = leftMotor.getVelocity().getValueAsDouble();
         double rightVel = rightMotor.getVelocity().getValueAsDouble();
-        return Math.abs(leftVel - kTargetVelocityRPS) < 2.0
-            && Math.abs(rightVel - kTargetVelocityRPS) < 2.0;
+        return Math.abs(leftVel - targetVelocityRPS) < 2.0
+            && Math.abs(rightVel - targetVelocityRPS) < 2.0;
     }
 
     /** Command: run shooter while active, stop on end. Bind to right trigger. */
@@ -83,6 +88,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Shooter/LeftVelocityRPS",  leftMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/RightVelocityRPS", rightMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter/TargetRPS", targetVelocityRPS);
         SmartDashboard.putBoolean("Shooter/AtSpeed", atSpeed());
     }
 }

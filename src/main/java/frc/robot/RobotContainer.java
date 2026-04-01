@@ -89,15 +89,9 @@ public class RobotContainer {
 //        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
 //        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        // D-pad up/down: adjust aimAtTarget kP by 0.5
-        joystick.povUp().onTrue(drivetrain.runOnce(() -> {
-            aimKp += 0.01;
-            SmartDashboard.putNumber("AimAtTarget/kP", aimKp);
-        }));
-        joystick.povDown().onTrue(drivetrain.runOnce(() -> {
-            aimKp = Math.max(0, aimKp - 0.01);
-            SmartDashboard.putNumber("AimAtTarget/kP", aimKp);
-        }));
+        // D-pad up/down: adjust shooter target RPS by 1
+        joystick.povUp().onTrue(shooter.runOnce(() -> shooter.adjustTargetRPS(1)));
+        joystick.povDown().onTrue(shooter.runOnce(() -> shooter.adjustTargetRPS(-1)));
 
         // Reset the field-centric heading on L1 press.
         joystick.L1().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
