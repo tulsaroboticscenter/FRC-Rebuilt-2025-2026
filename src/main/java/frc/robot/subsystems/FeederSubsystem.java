@@ -13,7 +13,7 @@ public class FeederSubsystem extends SubsystemBase {
 
     private static final int kFeederMotorId = 40;
 
-    private static final double kFeederSpeed = 0.7; // 0.0 – 1.0
+    private static final double kFeederSpeed = 1.0; // 0.0 – 1.0
 
     private final SparkMax feederMotor = new SparkMax(kFeederMotorId, MotorType.kBrushless);
 

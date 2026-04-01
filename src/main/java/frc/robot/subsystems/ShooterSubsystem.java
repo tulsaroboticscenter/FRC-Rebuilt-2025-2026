@@ -16,7 +16,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final int kRightMotorId = 44;
 
     // Target velocity in rotations per second (~3000 RPM)
-    private static final double kTargetVelocityRPS = 60.0;
+    private static final double kTargetVelocityRPS = 52.0;
 
     // PID / feedforward gains (tune with SysId or on-robot testing)
     private static final double kP = 0.1;   // V per RPS of error
