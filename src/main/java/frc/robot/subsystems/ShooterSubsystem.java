@@ -84,6 +84,16 @@ public class ShooterSubsystem extends SubsystemBase {
         return startEnd(this::runShooter, this::stopShooter).withName("RunShooter");
     }
 
+    /** Instant command: start shooter (for use in autos). */
+    public Command startShooterCommand() {
+        return runOnce(this::runShooter).withName("StartShooter");
+    }
+
+    /** Instant command: stop shooter (for use in autos). */
+    public Command stopShooterCommand() {
+        return runOnce(this::stopShooter).withName("StopShooter");
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Shooter/LeftVelocityRPS",  leftMotor.getVelocity().getValueAsDouble());

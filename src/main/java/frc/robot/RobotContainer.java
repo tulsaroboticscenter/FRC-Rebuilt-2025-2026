@@ -7,6 +7,7 @@ package frc.robot;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -53,6 +54,13 @@ public class RobotContainer {
         SmartDashboard.putNumber("AimAtTarget/kP", aimKp);
         SmartDashboard.putNumber("AimAtTarget/AngleTolerance", angle);
         configureBindings();
+
+        NamedCommands.registerCommand("StartShooter", shooter.startShooterCommand());
+        NamedCommands.registerCommand("StopShooter",  shooter.stopShooterCommand());
+        NamedCommands.registerCommand("StartFeeder",  feeder.startFeederCommand());
+        NamedCommands.registerCommand("StopFeeder",   feeder.stopFeederCommand());
+        NamedCommands.registerCommand("StartIntake",  intake.startIntakeCommand());
+        NamedCommands.registerCommand("StopIntake",   intake.stopIntakeCommand());
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);

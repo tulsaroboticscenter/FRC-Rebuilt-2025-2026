@@ -38,4 +38,14 @@ public class FeederSubsystem extends SubsystemBase {
     public Command runFeederCommand() {
         return startEnd(this::runFeeder, this::stopFeeder).withName("RunFeeder");
     }
+
+    /** Instant command: start feeder (for use in autos). */
+    public Command startFeederCommand() {
+        return runOnce(this::runFeeder).withName("StartFeeder");
+    }
+
+    /** Instant command: stop feeder (for use in autos). */
+    public Command stopFeederCommand() {
+        return runOnce(this::stopFeeder).withName("StopFeeder");
+    }
 }

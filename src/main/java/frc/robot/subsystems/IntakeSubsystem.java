@@ -66,6 +66,16 @@ public class IntakeSubsystem extends SubsystemBase {
         return startEnd(this::runIntake, this::stopIntake).withName("RunIntake");
     }
 
+    /** Instant command: start intake forward (for use in autos). */
+    public Command startIntakeCommand() {
+        return runOnce(this::runIntake).withName("StartIntake");
+    }
+
+    /** Instant command: stop intake (for use in autos). */
+    public Command stopIntakeCommand() {
+        return runOnce(this::stopIntake).withName("StopIntake");
+    }
+
     /**
      * Command: reverse intake while active, stop on end. Bind to circle button.
      */
