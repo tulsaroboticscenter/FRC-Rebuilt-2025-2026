@@ -6,9 +6,12 @@ import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
 
 public class ShooterSubsystem extends SubsystemBase {
     private static final String kTargetRpsDashboardKey = "Shooter/TargetRPS";
@@ -17,6 +20,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private static final int kLeftMotorId  = 43;
     private static final int kRightMotorId = 44;
+
+    // Distance (meters) → target RPS — tune these with on-field testing
+    private static final InterpolatingDoubleTreeMap kDistanceToRPS = new InterpolatingDoubleTreeMap();
+    static {
+        kDistanceToRPS.put(1.0, 35.0);
+        kDistanceToRPS.put(2.0, 45.0);
+        kDistanceToRPS.put(3.0, 52.0);
+        kDistanceToRPS.put(4.0, 58.0);
+        kDistanceToRPS.put(5.0, 63.0);
+    }
 
     // Target velocity in rotations per second (~3120 RPM at 50%, ~6240 RPM at 100%)
     private double targetVelocityRPS = kReducedTargetVelocityRPS;
@@ -93,6 +106,12 @@ public class ShooterSubsystem extends SubsystemBase {
         rightMotor.setControl(velocityRequest.withVelocity(-targetVelocityRPS));
     }
 
+    /** Spin both wheels at a fixed RPS, ignoring targetVelocityRPS. */
+    public void runShooterAtRPS(double rps) {
+        leftMotor.setControl(velocityRequest.withVelocity(rps));
+        rightMotor.setControl(velocityRequest.withVelocity(rps));
+    }
+
     /** Coast both wheels to a stop. */
     public void stopShooter() {
         leftMotor.setControl(neutralRequest);
@@ -120,6 +139,14 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Instant command: start shooter (for use in autos). */
     public Command startShooterCommand() {
         return runOnce(this::runShooter).withName("StartShooter");
+    /** Command: run shooter at a fixed RPS while active, stop on end. Good for preset buttons and auto. */
+    public Command runShooterAtRPSCommand(double rps) {
+        return startEnd(() -> runShooterAtRPS(rps), this::stopShooter).withName("RunShooterAtRPS");
+    }
+
+    /** Instant command: start shooter at a fixed RPS (for use in autos). */
+    public Command startShooterAtRPSCommand(double rps) {
+        return runOnce(() -> runShooterAtRPS(rps)).withName("StartShooterAtRPS");
     }
 
     /** Instant command: stop shooter (for use in autos). */
@@ -134,6 +161,18 @@ public class ShooterSubsystem extends SubsystemBase {
             setTargetRPS(dashboardTargetRPS);
         }
 
+        // Limelight knows exactly where the hub tag is on the field.
+        // getTargetPose_RobotSpace returns [x, y, z, ...] in meters relative to the robot,
+        // so horizontal distance is just hypot(x, y) — no field constants needed.
+        boolean hasTarget = LimelightHelpers.getTV("limelight");
+        if (hasTarget) {
+            double[] pose = LimelightHelpers.getTargetPose_RobotSpace("limelight");
+            double distance = Math.hypot(pose[0], pose[1]);
+            targetVelocityRPS = kDistanceToRPS.get(distance);
+            SmartDashboard.putNumber("Shooter/DistanceMeters", distance);
+        }
+
+        SmartDashboard.putBoolean("Shooter/HasTarget", hasTarget);
         SmartDashboard.putNumber("Shooter/LeftVelocityRPS",  leftMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/RightVelocityRPS", rightMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/ReducedTargetRPS", kReducedTargetVelocityRPS);

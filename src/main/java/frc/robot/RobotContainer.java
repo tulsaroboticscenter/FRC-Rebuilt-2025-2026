@@ -65,7 +65,7 @@ public class RobotContainer {
         SmartDashboard.putNumber("AimAtTarget/AngleTolerance", angle);
         configureBindings();
 
-        NamedCommands.registerCommand("StartShooter", shooter.startShooterCommand());
+        NamedCommands.registerCommand("StartShooter", shooter.startShooterAtRPSCommand(52.0));
         NamedCommands.registerCommand("StopShooter",  shooter.stopShooterCommand());
         NamedCommands.registerCommand("StartFeeder",  feeder.startFeederCommand());
         NamedCommands.registerCommand("StopFeeder",   feeder.stopFeederCommand());
@@ -124,6 +124,15 @@ public class RobotContainer {
                             .withRotationalRate(steeringAdjust);
                 })
         );
+
+//        // Right trigger: run shooter while held
+//        joystick.R2().whileTrue(shooter.runShooterCommand());
+//
+//        // Left trigger: run shooter at 100 RPS while held
+//        joystick.L2().whileTrue(shooter.runShooterAtRPSCommand(100.0));
+//
+//        // Cross (X): toggle intake on/off
+//        joystick.cross().toggleOnTrue(intake.runIntakeCommand());
 
         // Driver: feeder in/out on triggers.
         new Trigger(() -> driver.getHID().getR2Axis() > kTriggerPressedThreshold)
