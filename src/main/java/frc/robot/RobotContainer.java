@@ -8,11 +8,16 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
@@ -23,6 +28,11 @@ import frc.robot.subsystems.TestSubsystem;
 import static edu.wpi.first.units.Units.*;
 
 public class RobotContainer {
+    private static final double kFullSpeedRumbleStrength = 0.5;
+    private static final double kFullSpeedRumblePeriodSeconds = 1.0;
+    private static final double kFullSpeedRumblePulseSeconds = 0.2;
+    private static final double kTriggerPressedThreshold = 0.5;
+
     private final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private final double MaxAngularRate = RotationsPerSecond.of(1.50).in(RadiansPerSecond); // 1.5 of a rotation per second max angular velocity
 
@@ -38,8 +48,8 @@ public class RobotContainer {
     private double angle = 6.0;
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    //    private final CommandXboxController joystick = new CommandXboxController(0);
-    private final CommandPS5Controller joystick = new CommandPS5Controller(0);
+    private final CommandPS5Controller driver = new CommandPS5Controller(0);
+    private final CommandXboxController manipulator = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final TestSubsystem testSubsystem = new TestSubsystem();
@@ -72,9 +82,9 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() ->
-                        drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                                .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                                .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                        drive.withVelocityX(-driver.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                                .withVelocityY(-driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                                .withRotationalRate(-driver.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
                 )
         );
 
@@ -85,7 +95,7 @@ public class RobotContainer {
                 drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        joystick.triangle().whileTrue(drivetrain.applyRequest(() -> brake));
+        driver.triangle().whileTrue(drivetrain.applyRequest(() -> brake));
 //        joystick.b().whileTrue(drivetrain.applyRequest(() ->
 //            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
 //        ));
@@ -97,39 +107,43 @@ public class RobotContainer {
 //        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
 //        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        // D-pad up/down: adjust shooter target RPS by 1
-        joystick.povUp().onTrue(shooter.runOnce(() -> shooter.adjustTargetRPS(1)));
-        joystick.povDown().onTrue(shooter.runOnce(() -> shooter.adjustTargetRPS(-1)));
-
         // Reset the field-centric heading on L1 press.
-        joystick.L1().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        driver.L1().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         // R1: angle-only Limelight tracking — driver keeps full translational control
-        joystick.R1().whileTrue(
+        driver.R1().whileTrue(
                 drivetrain.applyRequest(() -> {
                     double tx = LimelightHelpers.getTX(kLimelightName);
                     boolean hasTarget = LimelightHelpers.getTV(kLimelightName);
                     double steeringAdjust = hasTarget && Math.abs(tx) > angle
                             ? -(tx * aimKp) * MaxAngularRate
-                            : -joystick.getRightX() * MaxAngularRate;
+                            : -driver.getRightX() * MaxAngularRate;
                     return drive
-                            .withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                            .withVelocityX(-driver.getLeftY() * MaxSpeed)
+                            .withVelocityY(-driver.getLeftX() * MaxSpeed)
                             .withRotationalRate(steeringAdjust);
                 })
         );
 
-        // Right trigger: run shooter while held
-        joystick.R2().whileTrue(shooter.runShooterCommand());
+        // Driver: feeder in/out on triggers.
+        new Trigger(() -> driver.getHID().getR2Axis() > kTriggerPressedThreshold)
+                .whileTrue(feeder.runFeederCommand());
+        new Trigger(() -> driver.getHID().getL2Axis() > kTriggerPressedThreshold)
+                .whileTrue(feeder.reverseFeederCommand());
 
-        // Cross (X): toggle intake on/off
-        joystick.cross().toggleOnTrue(intake.runIntakeCommand());
-
-        // Circle: reverse intake while held
-        joystick.circle().whileTrue(intake.reverseIntakeCommand());
-
-        // Square: run feeder while held
-        joystick.square().whileTrue(feeder.runFeederCommand());
+        // Manipulator: shooter and intake controls.
+        new Trigger(() -> manipulator.getHID().getRightTriggerAxis() > kTriggerPressedThreshold)
+                .whileTrue(shooter.runShooterCommand());
+        manipulator.leftBumper().whileTrue(shooter.reverseShooterCommand());
+        new Trigger(() -> manipulator.getHID().getLeftTriggerAxis() > kTriggerPressedThreshold)
+                .whileTrue(intake.runIntakeCommand());
+        manipulator.rightBumper().whileTrue(intake.reverseIntakeCommand());
+        new Trigger(() -> manipulator.getHID().getPOV() == 90)
+                .onTrue(shooter.runOnce(() -> shooter.adjustTargetRPS(1)));
+        new Trigger(() -> manipulator.getHID().getPOV() == 270)
+                .onTrue(shooter.runOnce(() -> shooter.adjustTargetRPS(-1)));
+        new Trigger(() -> manipulator.getHID().getPOV() == 180)
+                .onTrue(shooter.runOnce(shooter::toggleSpeedMode));
 
         // Feed Limelight MegaTag2 pose estimates into the drivetrain's pose estimator
 //        drivetrain.run(() -> drivetrain.updateVisionPose(kLimelightName));
@@ -138,5 +152,24 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    public void stopAllMechanisms() {
+        shooter.stopShooter();
+        intake.stopIntake();
+        feeder.stopFeeder();
+        manipulator.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+    }
+
+    public void logDriverInputs() {
+        SmartDashboard.putBoolean("Driver/ControllerConnected", driver.getHID().isConnected());
+        SmartDashboard.putBoolean("Manipulator/ControllerConnected", manipulator.getHID().isConnected());
+
+        boolean shouldRumble = DriverStation.isTeleopEnabled() && shooter.isFullSpeedMode();
+        double cyclePosition = Timer.getFPGATimestamp() % kFullSpeedRumblePeriodSeconds;
+        double rumbleValue = shouldRumble && cyclePosition < kFullSpeedRumblePulseSeconds
+                ? kFullSpeedRumbleStrength
+                : 0.0;
+        manipulator.getHID().setRumble(RumbleType.kBothRumble, rumbleValue);
     }
 }

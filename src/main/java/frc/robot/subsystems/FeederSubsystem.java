@@ -28,6 +28,10 @@ public class FeederSubsystem extends SubsystemBase {
         feederMotor.set(kFeederSpeed);
     }
 
+    public void reverseFeeder() {
+        feederMotor.set(-kFeederSpeed);
+    }
+
     public void stopFeeder() {
         feederMotor.set(0);
     }
@@ -37,6 +41,11 @@ public class FeederSubsystem extends SubsystemBase {
      */
     public Command runFeederCommand() {
         return startEnd(this::runFeeder, this::stopFeeder).withName("RunFeeder");
+    }
+
+    /** Command: run feeder in reverse while active. */
+    public Command reverseFeederCommand() {
+        return startEnd(this::reverseFeeder, this::stopFeeder).withName("ReverseFeeder");
     }
 
     /** Instant command: start feeder (for use in autos). */

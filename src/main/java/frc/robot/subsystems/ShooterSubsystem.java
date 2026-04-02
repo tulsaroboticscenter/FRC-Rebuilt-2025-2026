@@ -11,12 +11,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ShooterSubsystem extends SubsystemBase {
+    private static final String kTargetRpsDashboardKey = "Shooter/TargetRPS";
+    private static final double kFullTargetVelocityRPS = 104.0;
+    private static final double kReducedTargetVelocityRPS = kFullTargetVelocityRPS * 0.5;
 
     private static final int kLeftMotorId  = 43;
     private static final int kRightMotorId = 44;
 
-    // Target velocity in rotations per second (~3000 RPM) — adjustable via D-pad
-    private double targetVelocityRPS = 52.0;
+    // Target velocity in rotations per second (~3120 RPM at 50%, ~6240 RPM at 100%)
+    private double targetVelocityRPS = kReducedTargetVelocityRPS;
+    private double lastPublishedTargetVelocityRPS = targetVelocityRPS;
+    private boolean fullSpeedMode = false;
 
     // PID / feedforward gains (tune with SysId or on-robot testing)
     private static final double kP = 0.1;   // V per RPS of error
@@ -52,17 +57,40 @@ public class ShooterSubsystem extends SubsystemBase {
         // Right motor spins clockwise to eject in the same direction
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         rightMotor.getConfigurator().apply(config);
+
+        SmartDashboard.putNumber(kTargetRpsDashboardKey, targetVelocityRPS);
     }
 
     /** Adjust the target velocity by {@code deltaRPS} rotations per second. */
     public void adjustTargetRPS(double deltaRPS) {
-        targetVelocityRPS += deltaRPS;
+        setTargetRPS(targetVelocityRPS + deltaRPS);
+    }
+
+    /** Set the target velocity directly from SmartDashboard or tuning code. */
+    public void setTargetRPS(double targetVelocityRPS) {
+        this.targetVelocityRPS = targetVelocityRPS;
+        fullSpeedMode = Math.abs(targetVelocityRPS - kFullTargetVelocityRPS) < 0.5;
+    }
+
+    /** Toggle between the normal shooting target and full-speed target. */
+    public void toggleSpeedMode() {
+        setTargetRPS(fullSpeedMode ? kReducedTargetVelocityRPS : kFullTargetVelocityRPS);
+    }
+
+    public boolean isFullSpeedMode() {
+        return fullSpeedMode;
     }
 
     /** Spin both wheels at the target velocity. */
     public void runShooter() {
         leftMotor.setControl(velocityRequest.withVelocity(targetVelocityRPS));
         rightMotor.setControl(velocityRequest.withVelocity(targetVelocityRPS));
+    }
+
+    /** Spin both wheels in reverse at the target velocity magnitude. */
+    public void reverseShooter() {
+        leftMotor.setControl(velocityRequest.withVelocity(-targetVelocityRPS));
+        rightMotor.setControl(velocityRequest.withVelocity(-targetVelocityRPS));
     }
 
     /** Coast both wheels to a stop. */
@@ -84,6 +112,11 @@ public class ShooterSubsystem extends SubsystemBase {
         return startEnd(this::runShooter, this::stopShooter).withName("RunShooter");
     }
 
+    /** Command: run shooter in reverse while active, stop on end. */
+    public Command reverseShooterCommand() {
+        return startEnd(this::reverseShooter, this::stopShooter).withName("ReverseShooter");
+    }
+
     /** Instant command: start shooter (for use in autos). */
     public Command startShooterCommand() {
         return runOnce(this::runShooter).withName("StartShooter");
@@ -96,9 +129,18 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        double dashboardTargetRPS = SmartDashboard.getNumber(kTargetRpsDashboardKey, targetVelocityRPS);
+        if (dashboardTargetRPS != lastPublishedTargetVelocityRPS) {
+            setTargetRPS(dashboardTargetRPS);
+        }
+
         SmartDashboard.putNumber("Shooter/LeftVelocityRPS",  leftMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/RightVelocityRPS", rightMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter/TargetRPS", targetVelocityRPS);
+        SmartDashboard.putNumber("Shooter/ReducedTargetRPS", kReducedTargetVelocityRPS);
+        SmartDashboard.putNumber("Shooter/FullTargetRPS", kFullTargetVelocityRPS);
+        SmartDashboard.putNumber(kTargetRpsDashboardKey, targetVelocityRPS);
+        SmartDashboard.putBoolean("Shooter/FullSpeedMode", fullSpeedMode);
         SmartDashboard.putBoolean("Shooter/AtSpeed", atSpeed());
+        lastPublishedTargetVelocityRPS = targetVelocityRPS;
     }
 }

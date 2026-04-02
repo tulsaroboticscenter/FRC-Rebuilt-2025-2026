@@ -35,7 +35,29 @@ macOS prerequisites (one-time setup):
    - macOS release build: `open build/macos/Build/Products/Release/PathPlanner.app`
 
 ## Controller Inputs and Behavior
-Driver controller is an Xbox controller on port `0`.
+Driver controller is a PS5 controller on port `0`.
+Manipulator controller is an Xbox controller on port `1`.
 
+Driver controls:
 - Left stick (`Y/X`): field-relative translation
-- Right stick (`X`): rotation command (turn)
+- Right stick (`X`): rotation command
+- `Triangle`: swerve brake
+- `L1`: reseed field-centric heading
+- `R1`: Limelight angle-only assist while preserving translational control
+- `R2`: feeder in
+- `L2`: feeder out
+
+Manipulator controls:
+- `Right trigger`: shooter forward at the current target speed
+- `Left bumper`: shooter reverse
+- `Left trigger`: intake forward
+- `Right bumper`: intake reverse
+- `D-pad right`: increase shooter target by `1 RPS`
+- `D-pad left`: decrease shooter target by `1 RPS`
+- `D-pad down`: toggle shooter target between reduced mode and full-speed mode
+
+Shooter tuning and feedback:
+- Reduced shooter target defaults to `52.0 RPS` (50%)
+- Full shooter target is `104.0 RPS` (100%)
+- `Shooter/TargetRPS` on SmartDashboard can still override the live target
+- When full-speed mode is active, the manipulator controller pulses rumble at 50% strength once per second

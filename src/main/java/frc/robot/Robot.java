@@ -36,11 +36,14 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
+        m_robotContainer.logDriverInputs();
         CommandScheduler.getInstance().run(); 
     }
 
     @Override
-    public void disabledInit() {}
+    public void disabledInit() {
+        m_robotContainer.stopAllMechanisms();
+    }
 
     @Override
     public void disabledPeriodic() {}
@@ -50,6 +53,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        m_robotContainer.stopAllMechanisms();
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
@@ -65,6 +69,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        m_robotContainer.stopAllMechanisms();
         m_robotContainer.drivetrain.seedFieldCentric();
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
