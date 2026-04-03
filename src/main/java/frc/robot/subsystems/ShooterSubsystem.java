@@ -15,7 +15,7 @@ import frc.robot.LimelightHelpers;
 public class ShooterSubsystem extends SubsystemBase {
     private static final String kTargetRpsDashboardKey = "Shooter/TargetRPS";
     private static final double kFullTargetVelocityRPS = 104.0;
-    private static final double kReducedTargetVelocityRPS = kFullTargetVelocityRPS * 0.5;
+    private static final double kReducedTargetVelocityRPS = 74.0;
 
     private static final int kLeftMotorId = 43;
     private static final int kRightMotorId = 44;

@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Right Big Whale"
+                  "pathName": "Right Big Jonah"
                 }
               }
             ]
@@ -61,7 +61,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.5
+                  "waitTime": 2.75
                 }
               }
             ]
@@ -99,7 +99,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Right Small Whale"
+                  "pathName": "Right Small Jonah"
                 }
               }
             ]
@@ -143,7 +143,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.25
+                  "waitTime": 2.75
                 }
               }
             ]

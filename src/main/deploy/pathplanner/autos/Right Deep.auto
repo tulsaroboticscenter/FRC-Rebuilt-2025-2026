@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Left Big Jonah"
+                  "pathName": "Right Big Deep"
                 }
               }
             ]
@@ -61,7 +61,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.75
+                  "waitTime": 2.5
                 }
               }
             ]
@@ -99,7 +99,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Left Small Jonah"
+                  "pathName": "Right Small Deep"
                 }
               }
             ]
@@ -143,7 +143,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.75
+                  "waitTime": 2.5
                 }
               }
             ]

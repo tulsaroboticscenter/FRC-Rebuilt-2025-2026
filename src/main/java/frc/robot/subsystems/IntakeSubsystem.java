@@ -3,9 +3,11 @@ package frc.robot.subsystems;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -20,24 +22,24 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private final SparkFlex leftLeader = new SparkFlex(kLeftLeaderId, MotorType.kBrushless);
     private final SparkFlex leftFollower = new SparkFlex(kLeftFollowerId, MotorType.kBrushless);
-    private final SparkFlex rightLeader = new SparkFlex(kRightLeaderId, MotorType.kBrushless);
+    private final SparkMax rightLeader = new SparkMax(kRightLeaderId, MotorType.kBrushless);
     private final SparkFlex rightFollower = new SparkFlex(kRightFollowerId, MotorType.kBrushless);
 
     public IntakeSubsystem() {
-        SparkFlexConfig leaderConfig = new SparkFlexConfig();
-        leaderConfig.smartCurrentLimit(60);
-        leaderConfig.idleMode(IdleMode.kCoast);
-
-        // Left side
-        leftLeader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        SparkFlexConfig leftFollowerConfig = new SparkFlexConfig();
-        leftFollowerConfig.idleMode(IdleMode.kCoast);
-        leftFollowerConfig.follow(leftLeader, false); // same direction as left leader
-        leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
+//        SparkFlexConfig leaderConfig = new SparkFlexConfig();
+//        leaderConfig.smartCurrentLimit(60);
+//        leaderConfig.idleMode(IdleMode.kCoast);
+//
+//         Left side
+//        leftLeader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+//
+//        SparkFlexConfig leftFollowerConfig = new SparkFlexConfig();
+//        leftFollowerConfig.idleMode(IdleMode.kCoast);
+//        leftFollowerConfig.follow(leftLeader, false); // same direction as left leader
+//        leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+//
         // Right side — inverted relative to left so both sides pull inward
-        SparkFlexConfig rightLeaderConfig = new SparkFlexConfig();
+        SparkMaxConfig rightLeaderConfig = new SparkMaxConfig();
         rightLeaderConfig.smartCurrentLimit(60);
         rightLeaderConfig.idleMode(IdleMode.kCoast);
         rightLeaderConfig.inverted(true);
@@ -50,17 +52,17 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void runIntake() {
-        leftLeader.set(kIntakeSpeed);
+//        leftLeader.set(kIntakeSpeed);
         rightLeader.set(kIntakeSpeed);
     }
 
     public void reverseIntake() {
-        leftLeader.set(-kIntakeSpeed);
+//        leftLeader.set(-kIntakeSpeed);
         rightLeader.set(-kIntakeSpeed);
     }
 
     public void stopIntake() {
-        leftLeader.set(0);
+//        leftLeader.set(0);
         rightLeader.set(0);
     }
 
