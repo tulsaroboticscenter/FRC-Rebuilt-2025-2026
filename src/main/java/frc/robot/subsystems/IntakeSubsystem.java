@@ -13,57 +13,54 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-    private static final int kLeftLeaderId = 50;
-    private static final int kLeftFollowerId = 51;
-    private static final int kRightLeaderId = 52;
-    private static final int kRightFollowerId = 53;
+    private static final int kLeftTopMotorId = 50;
+    private static final int kLeftBottomMotorId = 51;
+    private static final int kRightTopMotorId = 52;
+    private static final int kRightBottomMotorId = 53;
 
     private static final double kIntakeSpeed = 1.0; // 0.0 – 1.0
 
-    private final SparkFlex leftLeader = new SparkFlex(kLeftLeaderId, MotorType.kBrushless);
-    private final SparkFlex leftFollower = new SparkFlex(kLeftFollowerId, MotorType.kBrushless);
-    private final SparkMax rightLeader = new SparkMax(kRightLeaderId, MotorType.kBrushless);
-    private final SparkFlex rightFollower = new SparkFlex(kRightFollowerId, MotorType.kBrushless);
+    private final SparkFlex leftTopMotor = new SparkFlex(kLeftTopMotorId, MotorType.kBrushless);
+    private final SparkFlex leftBottomMotor = new SparkFlex(kLeftBottomMotorId, MotorType.kBrushless);
+    private final SparkMax rightTopMotor = new SparkMax(kRightTopMotorId, MotorType.kBrushless);
+    private final SparkFlex rightBottomMotor = new SparkFlex(kRightBottomMotorId, MotorType.kBrushless);
 
     public IntakeSubsystem() {
-//        SparkFlexConfig leaderConfig = new SparkFlexConfig();
-//        leaderConfig.smartCurrentLimit(60);
-//        leaderConfig.idleMode(IdleMode.kCoast);
-//
-//         Left side
-//        leftLeader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-//
-//        SparkFlexConfig leftFollowerConfig = new SparkFlexConfig();
-//        leftFollowerConfig.idleMode(IdleMode.kCoast);
-//        leftFollowerConfig.follow(leftLeader, false); // same direction as left leader
-//        leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-//
-        // Right side — inverted relative to left so both sides pull inward
-        SparkMaxConfig rightLeaderConfig = new SparkMaxConfig();
-        rightLeaderConfig.smartCurrentLimit(60);
-        rightLeaderConfig.idleMode(IdleMode.kCoast);
-        rightLeaderConfig.inverted(true);
-        rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        SparkFlexConfig leftConfig = new SparkFlexConfig();
+        leftConfig.smartCurrentLimit(30);
+        leftConfig.idleMode(IdleMode.kCoast);
 
-        SparkFlexConfig rightFollowerConfig = new SparkFlexConfig();
-        rightFollowerConfig.idleMode(IdleMode.kCoast);
-        rightFollowerConfig.follow(rightLeader, false); // same direction as right leader
-        rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        leftTopMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        leftBottomMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        // Right side — inverted relative to left so both sides pull inward
+        SparkMaxConfig rightConfig = new SparkMaxConfig();
+        rightConfig.smartCurrentLimit(30);
+        rightConfig.idleMode(IdleMode.kCoast);
+        rightConfig.inverted(true);
+        rightTopMotor.configure(rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        rightBottomMotor.configure(rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void runIntake() {
-//        leftLeader.set(kIntakeSpeed);
-        rightLeader.set(kIntakeSpeed);
+        leftTopMotor.set(kIntakeSpeed);
+        leftBottomMotor.set(kIntakeSpeed);
+        rightTopMotor.set(kIntakeSpeed);
+        rightBottomMotor.set(kIntakeSpeed);
     }
 
     public void reverseIntake() {
-//        leftLeader.set(-kIntakeSpeed);
-        rightLeader.set(-kIntakeSpeed);
+        leftTopMotor.set(-kIntakeSpeed);
+        leftBottomMotor.set(-kIntakeSpeed);
+        rightTopMotor.set(-kIntakeSpeed);
+        rightBottomMotor.set(-kIntakeSpeed);
     }
 
     public void stopIntake() {
-//        leftLeader.set(0);
-        rightLeader.set(0);
+        leftTopMotor.set(0);
+        leftBottomMotor.set(0);
+        rightTopMotor.set(0);
+        rightBottomMotor.set(0);
     }
 
     /**
