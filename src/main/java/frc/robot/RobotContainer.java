@@ -19,7 +19,8 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.HailMaryIntakeSubsystem;
+ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TestSubsystem;
 
@@ -52,6 +53,7 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final TestSubsystem testSubsystem = new TestSubsystem();
     private final ShooterSubsystem shooter = new ShooterSubsystem();
+//    private final HailMaryIntakeSubsystem intake = new HailMaryIntakeSubsystem();
     private final IntakeSubsystem intake = new IntakeSubsystem();
     private final FeederSubsystem feeder = new FeederSubsystem();
 
@@ -117,7 +119,7 @@ public class RobotContainer {
 
         // Manipulator: shooter and intake controls.
         manipulator.rightTrigger(kTriggerPressedThreshold).whileTrue(shooter.runShooterCommand());
-        manipulator.leftBumper().whileTrue(shooter.reverseShooterCommand());
+//        manipulator.leftBumper().whileTrue(shooter.reverseShooterCommand());
         manipulator.leftTrigger(kTriggerPressedThreshold).whileTrue(intake.runIntakeCommand());
         manipulator.rightBumper().whileTrue(intake.reverseIntakeCommand());
         manipulator.povRight().onTrue(shooter.runOnce(() -> shooter.adjustTargetRPS(1)));

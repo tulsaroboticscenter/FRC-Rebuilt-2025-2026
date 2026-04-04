@@ -27,7 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public IntakeSubsystem() {
         SparkFlexConfig leftConfig = new SparkFlexConfig();
-        leftConfig.smartCurrentLimit(30);
+        leftConfig.smartCurrentLimit(40);
         leftConfig.idleMode(IdleMode.kCoast);
 
         leftTopMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -35,7 +35,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         // Right side — inverted relative to left so both sides pull inward
         SparkMaxConfig rightConfig = new SparkMaxConfig();
-        rightConfig.smartCurrentLimit(30);
+        rightConfig.smartCurrentLimit(40);
         rightConfig.idleMode(IdleMode.kCoast);
         rightConfig.inverted(true);
         rightTopMotor.configure(rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
