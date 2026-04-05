@@ -4,12 +4,14 @@
   "holonomicMode": true,
   "pathFolders": [
     "Front Paths",
-    "Rear Path"
+    "Full Send",
+    "Simple"
   ],
   "autoFolders": [
     "Deep",
+    "Full Send",
     "Jonah",
-    "Full Send"
+    "Simple"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

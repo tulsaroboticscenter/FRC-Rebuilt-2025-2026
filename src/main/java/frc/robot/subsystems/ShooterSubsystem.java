@@ -33,6 +33,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetVelocityRPS = kReducedTargetVelocityRPS;
     private double lastPublishedTargetVelocityRPS = targetVelocityRPS;
     private boolean fullSpeedMode = false;
+    private boolean running = false;
 
     // PID / feedforward gains (tune with SysId or on-robot testing)
     private static final double kP = 0.1;   // V per RPS of error
@@ -101,10 +102,15 @@ public class ShooterSubsystem extends SubsystemBase {
         return fullSpeedMode ? kFullTargetVelocityRPS : targetVelocityRPS;
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
     /**
      * Spin both wheels at the target velocity.
      */
     public void runShooter() {
+        running = true;
         leftMotor.setControl(velocityRequest.withVelocity(effectiveRPS()));
         rightMotor.setControl(velocityRequest.withVelocity(effectiveRPS()));
     }
@@ -113,6 +119,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Spin both wheels in reverse at the target velocity magnitude.
      */
     public void reverseShooter() {
+        running = true;
         leftMotor.setControl(velocityRequest.withVelocity(-effectiveRPS()));
         rightMotor.setControl(velocityRequest.withVelocity(-effectiveRPS()));
     }
@@ -121,6 +128,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Spin both wheels at a fixed RPS, ignoring targetVelocityRPS.
      */
     public void runShooterAtRPS(double rps) {
+        running = true;
         leftMotor.setControl(velocityRequest.withVelocity(rps));
         rightMotor.setControl(velocityRequest.withVelocity(rps));
     }
@@ -129,6 +137,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Coast both wheels to a stop.
      */
     public void stopShooter() {
+        running = false;
         leftMotor.setControl(neutralRequest);
         rightMotor.setControl(neutralRequest);
     }

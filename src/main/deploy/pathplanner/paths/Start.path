@@ -20,7 +20,7 @@
         "y": 6.897
       },
       "prevControl": {
-        "x": 0.43925449550217277,
+        "x": 0.439254495502173,
         "y": 8.859477021666818
       },
       "nextControl": null,
@@ -45,7 +45,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Rear Path",
+  "folder": "Full Send",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

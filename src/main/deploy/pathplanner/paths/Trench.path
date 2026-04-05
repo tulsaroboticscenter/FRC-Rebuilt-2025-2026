@@ -28,7 +28,16 @@
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.274272496928747,
+      "rotationDegrees": -135.0
+    },
+    {
+      "waypointRelativePos": 0.7652698863636361,
+      "rotationDegrees": -135.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -45,7 +54,7 @@
     "rotation": -43.349
   },
   "reversed": false,
-  "folder": "Rear Path",
+  "folder": "Full Send",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -43.349

@@ -53,8 +53,8 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final TestSubsystem testSubsystem = new TestSubsystem();
     private final ShooterSubsystem shooter = new ShooterSubsystem();
-//    private final HailMaryIntakeSubsystem intake = new HailMaryIntakeSubsystem();
-    private final IntakeSubsystem intake = new IntakeSubsystem();
+    private final HailMaryIntakeSubsystem intake = new HailMaryIntakeSubsystem();
+//    private final IntakeSubsystem intake = new IntakeSubsystem();
     private final FeederSubsystem feeder = new FeederSubsystem();
 
     private final SendableChooser<Command> autoChooser;
@@ -118,10 +118,11 @@ public class RobotContainer {
         );
 
         // Manipulator: shooter and intake controls.
+        // Shooter overrides intake — if shooter starts while intake is running, intake stops immediately.
         manipulator.rightTrigger(kTriggerPressedThreshold).whileTrue(shooter.runShooterCommand());
 //        manipulator.leftBumper().whileTrue(shooter.reverseShooterCommand());
-        manipulator.leftTrigger(kTriggerPressedThreshold).whileTrue(intake.runIntakeCommand());
-        manipulator.rightBumper().whileTrue(intake.reverseIntakeCommand());
+        manipulator.leftTrigger(kTriggerPressedThreshold).whileTrue(intake.runIntakeCommand().until(shooter::isRunning).unless(shooter::isRunning));
+        manipulator.rightBumper().whileTrue(intake.reverseIntakeCommand().until(shooter::isRunning).unless(shooter::isRunning));
         manipulator.povRight().onTrue(shooter.runOnce(() -> shooter.adjustTargetRPS(1)));
         manipulator.povLeft().onTrue(shooter.runOnce(() -> shooter.adjustTargetRPS(-1)));
         manipulator.povDown().onTrue(shooter.runOnce(shooter::toggleSpeedMode));
